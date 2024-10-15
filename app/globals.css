@@ -1,0 +1,51 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #fff;
+  --foreground: #171717;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+@layer components{
+  .btn {
+    @apply   font-bold bg-white py-4 px-4 rounded-lg shadow-xl
+  }
+  .card {
+    @apply   font-bold bg-white my-3 py-4 px-4 rounded-xl shadow-xl
+  }
+  .card img{
+    @apply rounded-lg mb-2 w-full 
+  }
+  .card h2 {
+    @apply text-xl  h-14 flex items-center justify-center text-center
+  }
+  .flexbase {
+    @apply   flex flex-row flex-wrap
+  }
+  .card-lover{
+    @apply relative -left-16 top-0 rounded-full card h-12 cursor-pointer
+  }
+  .card-delete{
+    @apply relative -left-[72px] top-2 rounded-full card h-14 cursor-pointer
+  }
+}
