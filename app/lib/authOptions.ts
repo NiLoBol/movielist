@@ -56,6 +56,7 @@ export const authOptions: NextAuthOptions = {
               id: data[findIndex].timeStamp,
               email: data[findIndex].email,
               name: token,
+              token:token
             };
           }
   
@@ -64,6 +65,31 @@ export const authOptions: NextAuthOptions = {
         },
       }),
     ],
+
+    callbacks: {
+        async session({ session, token }) {
+          // Customize the session object here based on the token values
+          session.user = {
+             // Assume id is always string
+            email: token.email || null, // Use token.email or set it to null if undefined
+            token: token.token as string || undefined, // Use token.token or set it to undefined if not present
+            name:token.name || undefined
+          };
+    
+          return session;
+        },
+        async jwt({ token, user }) {
+          // Customize the JWT to store extra information if needed
+          if (user) {
+             // Save user ID to the token
+            token.email = user.email; // Save email to the token
+            token.token = user.token; // Save the custom token to the token
+            token.name = user.name;
+          }
+    
+          return token;
+        },
+      },
   
     // Other options like callbacks can go here if needed
   };

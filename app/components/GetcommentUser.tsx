@@ -1,6 +1,7 @@
 import { useSession } from "next-auth/react";
 import React, { useEffect, useState } from "react";
 import Container from "./Container";
+import Delete from "./svg/Delete";
 
 function GetcommentUser({ comment }: { comment: any }) {
   console.log(comment.userdata);
@@ -27,48 +28,71 @@ function GetcommentUser({ comment }: { comment: any }) {
               method: "POST",
               body: JSON.stringify(dataToStore),
             });
-            if(!response.ok){
-                console.error("api fail");
+            if (!response.ok) {
+              console.error("api fail");
             }
-            setedit(!edit)
-            alert("success")
+            setedit(!edit);
+            alert("success");
+          };
+          const deletecomment = async () => {
+            const dataToStore = { email, id: item.id, token };
+            const response = await fetch("/api/submit/deletecomment", {
+              method: "POST",
+              body: JSON.stringify(dataToStore),
+            });
+            if (!response.ok) {
+              console.error("api fail");
+            } else {
+              alert("success");
+              window.location.reload();
+            }
           };
           return (
             <div
               className="flexbase p-5 border-2 rounded-2xl mb-2 mt-2 "
               key={"comment" + item.id}
             >
-              <div className=" basis-1/2">{item.email}</div>
-              <div className=" basis-1/4 ">
+              <div className=" basis-2/5">
+                <div className="text-xl">{item.email}</div>
+                {!edit ? (
+                  <div
+                    className="basis-4/5 cursor-pointer"
+                    onClick={() => setedit(!edit)}
+                  >
+                    message : {message} (Click message to edit)
+                  </div>
+                ) : (
+                  <>
+                    <div className="">
+                      <input
+                        onChange={(e) => setmessage(e.target.value)}
+                        placeholder="ใส่ message ใหม่ที่นี่"
+                      ></input>
+                      <button className="btn" onClick={() => Submit()}>
+                        submit
+                      </button>
+                      <button className="btn" onClick={() => setedit(!edit)}>
+                        back
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+              <div className=" basis-1/5 ">
                 รหัสหนัง : {item.movie_id} || comment_id : {item.id}
               </div>
 
-              <div className=" basis-1/4">
+              <div className=" basis-1/5">
                 {dateOnly} {timeOnly}
               </div>
-              {!edit ? (
+              <div className="basis-1/5">
                 <div
-                  className="basis-full cursor-pointer"
-                  onClick={() => setedit(!edit)}
+                  className="rounded-full card h-14 cursor-pointer w-14 "
+                  onClick={() => deletecomment()}
                 >
-                  message : {message}  (Click message to edit)
+                  <Delete />
                 </div>
-              ) : (
-                <>
-                  <div className=" basis-1/2">
-                    <input
-                      onChange={(e) => setmessage(e.target.value)}
-                      placeholder="ใส่ message ใหม่ที่นี่"
-                    ></input>
-                  </div>
-                  <button className="btn" onClick={() => Submit()}>
-                    submit
-                  </button>
-                  <button className="btn" onClick={() => setedit(!edit)}>
-                    back
-                  </button>
-                </>
-              )}
+              </div>
             </div>
           );
         })

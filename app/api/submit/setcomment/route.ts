@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
         email,
         message,
         timestamp: new Date().toISOString(),
-        id:data[data.length-1].length
+        id:data[data.length-1].id+1
       });
       await redis.set("movie_message", JSON.stringify(data));
     }

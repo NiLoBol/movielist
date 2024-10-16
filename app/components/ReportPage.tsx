@@ -10,7 +10,7 @@ import GetcommentUser from "./GetcommentUser";
 
 const MovieList = () => {
   const [movieslove, setMoviesLove] = useState<any[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [state, setstate] = useState<"loading"|"list"|"nouser">("loading");
   const [genresList, setGenresList] = useState<
     { id: number; name: string; count: number }[]
   >([]);
@@ -54,6 +54,7 @@ const MovieList = () => {
   };
 
   useEffect(() => {
+
     const fetchMovies = async () => {
       const email = session?.user?.email;
       const token = session?.user?.name;
@@ -70,7 +71,7 @@ const MovieList = () => {
       });
       if (!res.ok) {
         console.error("Failed to fetch data");
-        setLoading(false); // Stop loading if there's an error
+        setstate("loading"); // Stop loading if there's an error
         return;
       }
       const data = await res.json();
@@ -84,14 +85,14 @@ const MovieList = () => {
       });
       if (!comment.ok) {
         console.error("Failed to fetch data");
-        setLoading(false); // Stop loading if there's an error
+        setstate("list"); // Stop loading if there's an error
         return;
       }
       const commentdata = await comment.json();
       setComments(commentdata);
       setMoviesLove(data.listmovie);
 
-      setLoading(false);
+      setstate("list");
     };
 
     if (session) {
@@ -100,7 +101,15 @@ const MovieList = () => {
         fetchMovies();
         setstop(true);
       }
+    }else if(session===null){
+      setstate("nouser");
+      console.log("ไม่มีผู้ใช้งาน");
+      alert("Please log in.")
+    }else{
+      console.log("อาจมีผู้ใช้งาน");
     }
+    
+    
   }, [session]);
 
   useEffect(() => {
@@ -128,8 +137,11 @@ const MovieList = () => {
     setGenres(maxGenre);
   }, [movieslove]);
 
-  if (loading) {
+  if (state=="loading") {
     return <div>Loading ....</div>;
+  }
+  else if(state=="nouser"){
+    return <div>Please log in to view your favorite movies.</div>;
   }
 
   return (
