@@ -3,7 +3,9 @@ import { useSession, signIn, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 import { useState } from "react";
-
+/* 
+ที่มี ต้องใช้ได้ 
+*/
 function login() {
   const router = useRouter();
   const [email, setemail] = useState("");
@@ -17,7 +19,7 @@ function login() {
       password: pass,
       redirect: false,
     });
-    router.push("/");
+    // router.push("/");
   };
 
   return (

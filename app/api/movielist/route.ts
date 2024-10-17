@@ -59,6 +59,10 @@ export async function POST(request: NextRequest) {
     const istokenMatch = await bcrypt.compare(tokenx + "", token);
     if (istokenMatch) {
       const index = userdatalist.findIndex((item: { email: string }) => item.email === email);
+      if(index ==-1){
+        return NextResponse.json({ message: "not movie list " }, { status: 200 });
+      }
+      
       const userdata = userdatalist[index].movielist;
       
         // ใช้ Promise.all เพื่อดึงข้อมูลภาพยนตร์

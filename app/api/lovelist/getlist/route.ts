@@ -29,9 +29,23 @@ export async function POST(request: NextRequest) {
   const tokenx = usertokendata.timeStamp;
   const istokenMatch = await bcrypt.compare(tokenx + "", token);
   if (istokenMatch) {
-    const index = userdatalist.findIndex((item: { email: string }) => item.email === email);
-    const userdata = userdatalist[index].movielist;
-    return NextResponse.json({ message: "get user", userdata }, { status: 200 });
+    const index = userdatalist.findIndex(
+      (item: { email: string }) => item.email === email
+    );
+    if (index == -1) {
+      const userdata = { email, movielist:[] };
+      return NextResponse.json(
+        { message: "get user" },
+        { status: 200 }
+      );
+
+    } else {
+      const userdata = userdatalist[index].movielist;
+      return NextResponse.json(
+        { message: "get user", userdata },
+        { status: 200 }
+      );
+    }
   } else {
     return NextResponse.json({ message: "token fail" }, { status: 401 });
   }

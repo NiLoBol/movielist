@@ -29,29 +29,34 @@ function Movielist(props: { id: string; data: any }) {
       rest();
     }
   }, [session]);
-  
+
   useEffect(() => {
-    const booldata = data.map((movie: any) => {
-      return movieslove.some((element: any) => element.id === movie.id); // ใช้ some แทน filter
-    });
-    const updatedData = data.map((movie: any, index: number) => ({
-      ...movie, // คัดลอกคุณสมบัติของ movie
-      bool: booldata[index], // เพิ่มคุณสมบัติใหม่ bool
-    }));
-    
-    settest(updatedData);
-     
-     // ตั้งค่า test เป็นอาร์เรย์ของ true/false
-  }, [movieslove, data]);
-  
+    if (!movieslove) {
+    } else {
+      const booldata = data.map((movie: any) => {
+        return movieslove.some((element: any) => element.id === movie.id); // ใช้ some แทน filter
+      });
+      const updatedData = data.map((movie: any, index: number) => ({
+        ...movie, // คัดลอกคุณสมบัติของ movie
+        bool: booldata[index], // เพิ่มคุณสมบัติใหม่ bool
+      }));
+
+      settest(updatedData);
+
+      // ตั้งค่า test เป็นอาร์เรย์ของ true/false
+    }
+  }, [movieslove]);
+
   return (
     <>
-      {test?test.map((movie: any,index:number) => (
-        <MovieLoveCard
-          key={"movielovecard-" + movie.id+""+movie.bool}
-          movie={movie}
-        />
-      )):""}
+      {test
+        ? test.map((movie: any, index: number) => (
+            <MovieLoveCard
+              key={"movielovecard-" + movie.id + "" + movie.bool}
+              movie={movie}
+            />
+          ))
+        : ""}
     </>
   );
 }

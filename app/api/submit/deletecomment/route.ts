@@ -32,8 +32,8 @@ export async function POST(request: NextRequest) {
     const usercommentlist: any = await redis.get("movie_message");
     const filter = usercommentlist.filter((item: { email: string ,id:number}) => item.id!==id);
     await redis.set("movie_message",filter);
-
-    return NextResponse.json({ message:"success"  }, { status: 200 });
+    const filteruser = filter.filter((item: { email: string ,id:number}) => item.email===email);
+    return NextResponse.json({ message:"success" ,filteruser }, { status: 200 });
   } else {
     return NextResponse.json({ message: "token fail" }, { status: 401 });
   }
