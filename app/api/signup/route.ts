@@ -14,7 +14,8 @@ export async function POST(request: NextRequest) {
       { status: 400 }
     );
   }
-
+  console.log(password);
+  
   // ตรวจสอบรูปแบบอีเมล
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailPattern.test(email)) {
@@ -42,10 +43,9 @@ export async function POST(request: NextRequest) {
 
     if (!olddata || olddata === "") {
       const userdata = [];
-      const hashedPassword = bcrypt.hashSync(password, 10); // เข้ารหัสรหัสผ่าน
       userdata.push({
         email: email,
-        password: hashedPassword,
+        password: password,
         fullname: fullname,
         gender: gender,
         phonenumber: phonenumber,
@@ -72,10 +72,10 @@ export async function POST(request: NextRequest) {
       }
       
       else {
-        const hashedPassword = bcrypt.hashSync(password, 10); // เข้ารหัสรหัสผ่าน
+        
         olddata.push({
           email: email,
-          password: hashedPassword,
+          password: password,
           fullname: fullname,
           gender: gender,
           phonenumber: phonenumber,
