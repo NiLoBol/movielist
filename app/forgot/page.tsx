@@ -1,6 +1,7 @@
-"use client";
+"use client"
 import React, { useState } from 'react';
 import emailjs from 'emailjs-com';
+import { severtests } from '../data/action/serversubmit';
 
 interface PasswordResetRequest {
   email: string;
@@ -11,7 +12,7 @@ interface PasswordResetRequest {
 const createPasswordResetRequest = (email: string): PasswordResetRequest => {
   const token = generateToken();
   const expiry = Date.now() + 10 * 60 * 1000; // เวลาหมดอายุ 10 นาทีใน milliseconds
-
+// const expiry = Date.now()
   return {
     email,
     token,
@@ -29,30 +30,30 @@ function Page() {
 
   const handleForgot = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     const newForgetData = createPasswordResetRequest(email);
     console.log(newForgetData);
-
-    try {
-        const message = `<a href='http://localhost:3000/forgot/+${newForgetData.token}'>+Link</a>`
-      const response = await emailjs.send(
-        process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!,
-        process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID!,
-        {
-            from_name: "Movielist",
-            to_name: "username", // put your name here.
-            from_email: "sathaporn.e@wris.com",
-            to_email: email, //put your email here.
-            message: message,
-          },
-        process.env.NEXT_PUBLIC_EMAILJS_USER_ID!
-      );
-      console.log('Email sent successfully!', response.status, response.text);
-      alert('Email sent successfully!');
-    } catch (error) {
-      console.error('Failed to send email:', error);
-      alert('Failed to send email. Please try again.');
-    }
+    severtests(newForgetData)
+    // try {
+        
+    //   const response = await emailjs.send(
+    //     process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!,
+    //     process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID!,
+    //     {
+    //         from_name: "Movielist",
+    //         to_name: "username", // put your name here.
+    //         from_email: "sathaporn.e@wris.com",
+    //         to_email: email, //put your email here.
+    //         message: "click to go link",
+    //         link:`http://localhost:3000/forgot/${newForgetData.token}`
+    //       },
+    //     process.env.NEXT_PUBLIC_EMAILJS_USER_ID!
+    //   );
+    //   console.log('Email sent successfully!', response.status, response.text);
+    //   alert('Email sent successfully!');
+    // } catch (error) {
+    //   console.error('Failed to send email:', error);
+    //   alert('Failed to send email. Please try again.');
+    // }
   };
 
   return (
