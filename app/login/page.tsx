@@ -14,12 +14,19 @@ function login() {
     event.preventDefault(); // หยุดการส่งฟอร์มแบบปกติ
 
     // เรียกใช้ signIn พร้อมกับข้อมูล email และ password
-    await signIn("credentials", {
+    const result = await signIn("credentials", {
       email,
       password: pass,
       redirect: false,
     });
-    // router.push("/");
+
+    // ตรวจสอบผลลัพธ์การล็อกอิน
+    if (result?.error) {
+      alert("username  หรือ password ไม่ถูกต้อง");
+    } else {
+      alert("ล็อกอินสำเร็จ");
+      router.push("/"); // หากล็อกอินสำเร็จ ให้เปลี่ยนเส้นทางไปยังหน้าแรก
+    }
   };
 
   return (
@@ -72,7 +79,7 @@ function login() {
               </div>
               <div className="flex items-center justify-between">
                 <a
-                  href="#"
+                  href="/forgot"
                   className="text-sm font-medium text-primary-600 hover:underline dark:text-primary-500"
                 >
                   Forgot password?
