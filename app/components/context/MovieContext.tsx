@@ -11,6 +11,10 @@ interface MovieContextType {
   setBools: (bools: boolean[]) => void;
   selectedRole: string;
   setSelectedRole: (role: string) => void;
+  startYear: string; // เพิ่มปีเริ่มต้น
+  setStartYear: (year: string) => void; // เพิ่มฟังก์ชันการตั้งค่า
+  endYear: string; // เพิ่มปีสิ้นสุด
+  setEndYear: (year: string) => void; // เพิ่มฟังก์ชันการตั้งค่า
 }
 
 // Create the context with default values
@@ -28,7 +32,17 @@ export const MovieProvider = ({ children }: { children: ReactNode }) => {
     const savedRole = sessionStorage.getItem("selectedRole");
     return savedRole ? savedRole : "Or"; // Return savedRole if it exists, else "Or"
   });
-  // Default value
+
+  const [startYear, setStartYear] = useState<string>(() => {
+    const savedStartYear = sessionStorage.getItem("startYear");
+    return savedStartYear ? savedStartYear : "2020"; // คืนค่า savedStartYear หากมีอยู่ หรือเป็นสตริงว่าง
+  });
+  
+  const [endYear, setEndYear] = useState<string>(() => {
+    const savedEndYear = sessionStorage.getItem("endYear");
+    return savedEndYear ? savedEndYear : "2024"; // คืนค่า savedEndYear หากมีอยู่ หรือเป็นสตริงว่าง
+  });
+  
 
   return (
     <MovieContext.Provider
@@ -41,6 +55,10 @@ export const MovieProvider = ({ children }: { children: ReactNode }) => {
         setBools,
         selectedRole,
         setSelectedRole,
+        startYear, // เพิ่มปีเริ่มต้น
+        setStartYear, // เพิ่มฟังก์ชันการตั้งค่า
+        endYear, // เพิ่มปีสิ้นสุด
+        setEndYear, // เพิ่มฟังก์ชันการตั้งค่า
       }}
     >
       {children}

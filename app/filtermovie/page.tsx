@@ -9,12 +9,12 @@ import PrevNextButtons from "../components/PrevNextButtons";
 import Container from "../components/Container";
 // ถ้าดึงลงตรงนี้ ต้องเปลียนเป็น
 function page() {
-  const { genre, releaseYear, setGenre, setReleaseYear } = useMovieContext();
+  const { genre, releaseYear, setGenre, setReleaseYear ,startYear,endYear} = useMovieContext();
   const [data, setData] = useState<any>(null);
   console.log(genre);
   useEffect(() => {
     const res = async () => {
-      const data = await fetchMovies(1, genre, "2024");
+      const data = await fetchMovies(1, genre, startYear,endYear);
       console.log(data);
       setData(data);
     };

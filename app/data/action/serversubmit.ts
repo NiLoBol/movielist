@@ -122,8 +122,8 @@ export const set_newpassword = async (password: string,token:string) => {
 };
 
 
-export const fetchMovies = async (page:number, genre:string, releaseYear:string) => {
-  const url = `https://api.themoviedb.org/3/discover/movie?with_genres=${genre}&primary_release_year=${releaseYear}&page=${page}&sort_by=popularity.desc&language=th-TH`;
+export const fetchMovies = async (page:number, genre:string, startYear:string|number,endYear:string|number) => {
+const url = `https://api.themoviedb.org/3/discover/movie?with_genres=${genre}&primary_release_date.gte=${startYear}-01-01&primary_release_date.lte=${endYear}-12-31&page=${page}&sort_by=popularity.desc&language=th-TH`;
 
   const res = await fetch(url, {
     method: "GET",

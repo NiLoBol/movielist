@@ -13,12 +13,12 @@ function Page({
   params: { id: string };
   searchParams: { [key: string]: string | string[] | undefined };
 }) {
-  const { genre, releaseYear, setGenre, setReleaseYear } = useMovieContext();
+  const { genre, releaseYear, setGenre, setReleaseYear,startYear,endYear } = useMovieContext();
   const [data, setData] = useState<any>(null);
 
   useEffect(() => {
     const fetchData = async () => {
-      const fetchedData = await fetchMovies(Number(params.id), genre, "2024");
+      const fetchedData = await fetchMovies(Number(params.id), genre, startYear,endYear);
       console.log(fetchedData);
       setData(fetchedData);
     };
