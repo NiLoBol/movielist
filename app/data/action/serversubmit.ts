@@ -120,3 +120,24 @@ export const set_newpassword = async (password: string,token:string) => {
     throw error; // Rethrow the error for further handling
   }
 };
+
+
+export const fetchMovies = async (page:number, genre:string, releaseYear:string) => {
+  const url = `https://api.themoviedb.org/3/discover/movie?with_genres=${genre}&primary_release_year=${releaseYear}&page=${page}&sort_by=popularity.desc&language=th-TH`;
+
+  const res = await fetch(url, {
+    method: "GET",
+    headers: {
+      accept: "application/json",
+      Authorization:
+        "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI3Y2EzZjI4NGE5MmI0ZmNkNWZmODdjMGZlZThhNGNkZiIsIm5iZiI6MTcyOTA3MTkxNy45MTczNDIsInN1YiI6IjYzMTA3NDgzNjA2MjBhMDA4M2U2MTQyYiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.lKUkgikBlG5pmdyjCZ_3mu1c5NmKhVi7rOmR05ACcQM",
+    }, // To ensure the fetch is done on every request (optional)
+  });
+
+  if (!res.ok) {
+    console.error("API fail");
+  } else {
+    const data = await res.json();
+    return data
+  }
+};

@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import Movielist from "../components/Movielist";
 import MovieCard from "../components/MovieCard";
 import Container from "../components/Container";
+import { fetchMovies } from "../data/action/serversubmit";
 // เปลี่ยนเป็นหน้าที่ filter หนังได้ หนังปี20... แนวไหน...
 // วิธีการส่งข้อมูลแบบไหนดี
 // 1. props
@@ -13,7 +14,7 @@ import Container from "../components/Container";
 // ถ้าอยู่หน้าเดิมจะส่งข้อมูล state ไป ดูง่ายและเร็วกว่า
 // ไปหน้าใหม่ ส่ง ผ่าน urlไปละก็ฟิลเตอร์แสดง
 // ข้อมูลที่ต้องเลือก  with_genres=xxx,xxx , with_genres=xxx|xxx และกับหรือ สามารถดึงได้หลายแบบ
-// primary_release_year ปีที่จะแสดง 
+// primary_release_year ปีที่จะแสดง
 //  sort_by...
 function Page() {
   const [data, setData] = useState<any>(null);
@@ -21,29 +22,14 @@ function Page() {
   const [genre, setGenre] = useState<string>("28"); // Default to Action
   const [releaseYear, setReleaseYear] = useState<string>("2022"); // Default year
 
-  const fetchMovies = async () => {
-    const url = `https://api.themoviedb.org/3/discover/movie?with_genres=${genre}&primary_release_year=${releaseYear}&page=${page}&sort_by=popularity.desc&language=th-TH`;
-
-    const res = await fetch(url, {
-      method: "GET",
-      headers: {
-        accept: "application/json",
-        Authorization:
-          "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI3Y2EzZjI4NGE5MmI0ZmNkNWZmODdjMGZlZThhNGNkZiIsIm5iZiI6MTcyOTA3MTkxNy45MTczNDIsInN1YiI6IjYzMTA3NDgzNjA2MjBhMDA4M2U2MTQyYiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.lKUkgikBlG5pmdyjCZ_3mu1c5NmKhVi7rOmR05ACcQM",
-      }, // To ensure the fetch is done on every request (optional)
-    });
-
-    if (!res.ok) {
-      console.error("API fail");
-    } else {
-      const data = await res.json();
-      setData(data);
-      console.log(data);
-    }
-  };
-
   useEffect(() => {
-    fetchMovies();
+    const response = async () => {
+      const data = await fetchMovies(page, genre, releaseYear);
+      console.log(data);
+      setData(data)
+    };
+    response();
+    
   }, [page, genre, releaseYear]); // Fetch movies whenever page, genre or releaseYear changes
 
   return (
@@ -64,7 +50,6 @@ function Page() {
 
         {/* Dropdown for release years */}
         <select
-
           value={releaseYear}
           onChange={(e) => setReleaseYear(e.target.value)}
           className="mb-4 basis-1/2"
@@ -78,10 +63,7 @@ function Page() {
         {data ? (
           data.results.map((movie: any, index: number) => (
             <div className="basis-1/5 p-3" key={"m" + index}>
-              <MovieCard
-                key={"movielovecard-" + movie.id}
-                movie={movie}
-              />
+              <MovieCard key={"movielovecard-" + movie.id} movie={movie} />
             </div>
           ))
         ) : (
@@ -99,10 +81,7 @@ function Page() {
           Previous
         </button>
         <span>Page {page}</span>
-        <button
-          onClick={() => setPage((prev) => prev + 1)}
-          className="ml-2"
-        >
+        <button onClick={() => setPage((prev) => prev + 1)} className="ml-2">
           Next
         </button>
       </div>
