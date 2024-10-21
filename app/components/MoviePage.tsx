@@ -26,7 +26,7 @@ async function MoviePage(props: { id: string }) {
     <div>
       <h1 className="text-5xl mt-32  text-center">Movie List</h1>
       <Container>
-        <div className="flexbase my-20">
+        <div className="flexbase justify-center  my-20">
           <Movielist key={props.id} id={props.id} data={data.results} />
         </div>
         <PrevNextButtons id={props.id} />
