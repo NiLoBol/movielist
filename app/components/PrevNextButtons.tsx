@@ -2,18 +2,19 @@
 import { useRouter } from "next/router";
 import React from "react";
 
-function PrevNextButtons(props: { id: string }) {
+function PrevNextButtons(props: { id: string ,link? :string}) {
+  const link = props.link?props.link:"/";
   console.log(props.id);
   const handleNext = () => {
     const nextId = parseInt(props.id) + 1; // แปลง id เป็นจำนวนเต็มแล้วเพิ่ม 1
     console.log(nextId);
 
-    window.location.href = "/" + nextId;
+    window.location.href = link + nextId;
   };
   const handlePrevious = () => {
     const nextId = parseInt(props.id) - 1; // แปลง id เป็นจำนวนเต็มแล้วเพิ่ม 1
     console.log(nextId);
-    window.location.href = "/" + nextId;
+    window.location.href = link + nextId;
   };
   return (
     <div className="flexbase justify-between flex-row-reverse my-20 px-4">

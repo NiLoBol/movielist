@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import { CustomProviders } from "./Provider";
 import "./globals.css";
 import Nav from "./components/Nav";
+import { MovieProvider } from "./components/context/MovieContext";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -28,12 +29,14 @@ export default function RootLayout({
   return (
     <CustomProviders>
       <html lang="en">
+      <MovieProvider>
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
           <Nav />
           {children}
         </body>
+        </MovieProvider>
       </html>
     </CustomProviders>
   );
