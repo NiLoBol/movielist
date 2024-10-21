@@ -2,6 +2,7 @@ import React from "react";
 import Container from "./Container";
 import Movielist from "./Movielist";
 import PrevNextButtons from "./PrevNextButtons";
+import { redirect } from 'next/navigation';
 // api_key=7ca3f284a92b4fcd5ff87c0fee8a4cdf&
 // moviepageเปลี่ยนการทำงาน props: { id: string } =>url แทน
 // PrevNextButtons ต้องเพิ่ม urlเข้าไปด้วย แต่ไม่ใช้url api เป็น url web
@@ -16,6 +17,7 @@ async function MoviePage(props: { id: string }) {
     }, // To ensure the fetch is done on every request (optional)
   });
   if (!res_movielist.ok) {
+    redirect('/');
     throw new Error("Failed to fetch data");
   }
   const data = await res_movielist.json();
