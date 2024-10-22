@@ -15,6 +15,7 @@
     "bcryptjs": "^2.4.3",
     "chart.js": "^4.4.4",
     "emailjs-com": "^3.2.0",
+    "mongoose": "^8.7.2",
     "next": "14.2.15",
     "next-auth": "^4.24.8",
     "react": "^18",
