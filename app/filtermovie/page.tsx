@@ -19,7 +19,7 @@ function page() {
       setData(data);
     };
     res();
-  }, [genre]);
+  }, [genre,startYear,endYear]);
 
   return (
     <Container>

@@ -1,5 +1,5 @@
 "use client";
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, { createContext, useContext, useState, ReactNode, useEffect } from "react";
 
 // Define the type for the context state
 interface MovieContextType {
@@ -24,26 +24,24 @@ const MovieContext = createContext<MovieContextType | undefined>(undefined);
 export const MovieProvider = ({ children }: { children: ReactNode }) => {
   const [genre, setGenre] = useState<string>("28"); // Default to Action
   const [releaseYear, setReleaseYear] = useState<string>("2022"); // Default year
-  const [bools, setBools] = useState<boolean[]>(() => {
-    const savedBools = sessionStorage.getItem("bools");
-    return savedBools ? JSON.parse(savedBools) : Array(16).fill(false);
-  });
-  const [selectedRole, setSelectedRole] = useState<string>(() => {
+  const [bools, setBools] = useState<boolean[]>(([]));
+  const [selectedRole, setSelectedRole] = useState<string>(("Or"));
+  const [startYear, setStartYear] = useState<string>(("2020"));
+
+  const [endYear, setEndYear] = useState<string>(("2024"));
+  useEffect(() => {
+    const data = JSON.parse(
+      sessionStorage.getItem("bools") || JSON.stringify(Array(16).fill(false))
+    );
+    setBools(data)
     const savedRole = sessionStorage.getItem("selectedRole");
-    return savedRole ? savedRole : "Or"; // Return savedRole if it exists, else "Or"
-  });
-
-  const [startYear, setStartYear] = useState<string>(() => {
+    setSelectedRole(savedRole||"Or")
     const savedStartYear = sessionStorage.getItem("startYear");
-    return savedStartYear ? savedStartYear : "2020"; // คืนค่า savedStartYear หากมีอยู่ หรือเป็นสตริงว่าง
-  });
-  
-  const [endYear, setEndYear] = useState<string>(() => {
+    setStartYear(savedStartYear||"2020")
     const savedEndYear = sessionStorage.getItem("endYear");
-    return savedEndYear ? savedEndYear : "2024"; // คืนค่า savedEndYear หากมีอยู่ หรือเป็นสตริงว่าง
-  });
+    setEndYear(savedEndYear||"2024")
+  }, [])
   
-
   return (
     <MovieContext.Provider
       value={{
