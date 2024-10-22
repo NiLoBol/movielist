@@ -1,5 +1,5 @@
 "use server";
-import bcrypt from 'bcrypt';
+import bcrypt from "bcrypt";
 import { Redis } from "@upstash/redis";
 import emailjs from "emailjs-com";
 export async function serversubmit(formdata: FormData) {
@@ -65,27 +65,27 @@ export const severtests = async (resdata: PasswordResetRequest) => {
         (item: PasswordResetRequest) => item.email === resdata.email
       );
       const filter2 = filter.filter(
-          (item: PasswordResetRequest) => item.email !== resdata.email
-        );
+        (item: PasswordResetRequest) => item.email !== resdata.email
+      );
       if (countip !== -1) {
         upstash_data.ip_count = filter[countip].ip_count + 1;
-
       } else {
-      }console.log(filter2);
-        filter2.push(upstash_data);
-        // data.push(resdata)
-        await redis.set("forgot_user", filter2);
-        return "Success";
+      }
+      console.log(filter2);
+      filter2.push(upstash_data);
+      // data.push(resdata)
+      await redis.set("forgot_user", filter2);
+      return "Success";
     }
   }
 };
 
-export const set_newpassword = async (password: string,token:string) => {
+export const set_newpassword = async (password: string, token: string) => {
   try {
     // Generate a salt
     const saltRounds = 10; // You can adjust the salt rounds for security
     const salt = await bcrypt.genSalt(saltRounds);
-    
+
     // Hash the password with the salt
     const hashedPassword = await bcrypt.hash(password, salt);
 
@@ -97,21 +97,25 @@ export const set_newpassword = async (password: string,token:string) => {
       token: process.env.UPSTASH_REDIS_TOKEN,
     });
     const user: any = await redis.get("movielist-userdata-sql");
-    const forgot_user: PasswordResetRequest[]|null = await redis.get("forgot_user");
-    if(forgot_user){
-      const findindex_user_token = forgot_user.findIndex((item:PasswordResetRequest)=> item.token===token)
+    const forgot_user: PasswordResetRequest[] | null = await redis.get(
+      "forgot_user"
+    );
+    if (forgot_user) {
+      const findindex_user_token = forgot_user.findIndex(
+        (item: PasswordResetRequest) => item.token === token
+      );
       const email = forgot_user[findindex_user_token].email;
-      const findindex_email_user = user.findIndex((item:any)=>item.email===email);
-      if(findindex_user_token == -1 ||findindex_email_user ==-1){
-        return "Invalid token"
-      }else{
+      const findindex_email_user = user.findIndex(
+        (item: any) => item.email === email
+      );
+      if (findindex_user_token == -1 || findindex_email_user == -1) {
+        return "Invalid token";
+      } else {
         user[findindex_email_user].password = hashedPassword;
         await redis.set("movielist-userdata-sql", user);
       }
-    }
-    else{
+    } else {
       console.error("token is undefind");
-      
     }
     // Optionally return the hashed password for further use
     return hashedPassword;
@@ -121,9 +125,13 @@ export const set_newpassword = async (password: string,token:string) => {
   }
 };
 
-
-export const fetchMovies = async (page:number, genre:string, startYear:string|number,endYear:string|number) => {
-const url = `https://api.themoviedb.org/3/discover/movie?with_genres=${genre}&primary_release_date.gte=${startYear}-01-01&primary_release_date.lte=${endYear}-12-31&page=${page}&sort_by=popularity.desc&language=th-TH`;
+export const fetchMovies = async (
+  page: number,
+  genre: string,
+  startYear: string | number,
+  endYear: string | number
+) => {
+  const url = `https://api.themoviedb.org/3/discover/movie?with_genres=${genre}&primary_release_date.gte=${startYear}-01-01&primary_release_date.lte=${endYear}-12-31&page=${page}&sort_by=popularity.desc&language=th-TH`;
 
   const res = await fetch(url, {
     method: "GET",
@@ -138,6 +146,35 @@ const url = `https://api.themoviedb.org/3/discover/movie?with_genres=${genre}&pr
     console.error("API fail");
   } else {
     const data = await res.json();
-    return data
+    return data;
   }
 };
+function generateRandomToken() {
+  return Math.random().toString(36).substring(2, 15); // สุ่ม token
+}
+
+export async function backupuser() {
+  const redis = new Redis({
+    url: 'https://equal-aphid-35928.upstash.io',
+    token: 'AYxYAAIjcDE4NDA5ZTY0MjBlYjA0ODE1YjY5MDA4YzI4N2I3NjgwZXAxMA',
+  })
+  
+  for (let index = 0; index < 10; index++ ) {
+    const randomNumber = Math.floor(Math.random() * 10000000000);
+    const username = generateRandomToken(); // สร้าง username
+    const password = generateRandomToken(); // สร้าง password
+    const token = generateRandomToken(); // สร้าง token
+    const user = JSON.stringify({ username, password, token, randomNumber });
+    await redis.lpush('users', user);
+    console.log(`User ${user} created with phone number: ${randomNumber}`);
+
+  }
+  // client.keys('user:*');
+  // const user =await redis.smembers("user")
+  // console.log(user);
+  
+  return null ;
+}
+
+
+
