@@ -63,9 +63,9 @@ function GetcommentUser({ comment }: { comment: any }) {
     );
   };
 
-  const Submit = async (index: number, id: number) => {
+  const Submit = async (index: number, _id: any) => {
     const message = messageState[index];
-    const dataToStore = { email, id: id, token, message };
+    const dataToStore = { email, _id, token, message };
     const response = await fetch("/api/submit/editcomment", {
       method: "POST",
       body: JSON.stringify(dataToStore),
@@ -154,7 +154,7 @@ function GetcommentUser({ comment }: { comment: any }) {
                         ></input>
                         <button
                           className="btn"
-                          onClick={() => Submit(index, item.id)}
+                          onClick={() => Submit(index, item._id)}
                         >
                           submit
                         </button>

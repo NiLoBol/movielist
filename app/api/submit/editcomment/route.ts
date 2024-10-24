@@ -1,41 +1,51 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import bcrypt from "bcryptjs";
-import { Redis } from "@upstash/redis";
 import { NextRequest, NextResponse } from "next/server";
+import User from "@/model/User";
+import MovieComment from "@/model/Movie_Comment";
+
 export async function POST(request: NextRequest) {
   const data = await request.json();
 
-  const { email, token ,id ,message } = data;
+  const { email, token, _id, message } = data;
 
-  if (!email || !token|| !id|| !message) {
+  // ตรวจสอบว่ามีข้อมูลที่จำเป็นครบถ้วน
+  if (!email || !token || !_id || !message) {
     return NextResponse.json(
-      { message: "Email and token are required" },
+      { message: "Email, token, id, and message are required" },
       { status: 400 }
     );
   }
 
-  const redis = new Redis({
-    url: process.env.UPSTASH_REDIS_URL,
-    token: process.env.UPSTASH_REDIS_TOKEN,
-  });
-  
-  // ดึงข้อมูลจาก Redis
-  const user: any = await redis.get("movielist-userdata-sql");
-  // ถ้าไม่มีข้อมูลเลย
-  const usertokenIndex = user.findIndex(
-    (user: { email: string }) => user.email === email
-  );
-  const usertokendata = user[usertokenIndex];
-  const tokenx = usertokendata.timeStamp;
-  const istokenMatch = await bcrypt.compare(tokenx + "", token);
-  if (istokenMatch) {
-    const usercommentlist: any = await redis.get("movie_message");
-    const findIndex = usercommentlist.findIndex((item: { email: string ,id:number}) => item.email === email && item.id===id);
-    const userdata = usercommentlist;
-    userdata[findIndex].message = message;
-    await redis.set("movie_message",userdata);
-    return NextResponse.json({ message:"success" }, { status: 200 });
+  // ค้นหาผู้ใช้ตามอีเมล
+  const user = await User.findOne({ email: email });
+  if (!user) {
+    return NextResponse.json({ message: "User not found" }, { status: 404 });
+  }
+
+  // ตรวจสอบความถูกต้องของ token
+  const isValid = await bcrypt.compare(String(user._id), token);
+  if (!isValid) {
+    return NextResponse.json({ message: "Token not valid" }, { status: 401 });
   } else {
-    return NextResponse.json({ message: "token fail" }, { status: 401 });
+    // อัปเดตความคิดเห็น
+    const updatedComment = await MovieComment.findOneAndUpdate(
+      { user_id: user._id, _id: _id },
+      { message: message }, // อัปเดตข้อความความคิดเห็น
+      { new: true } // คืนค่าข้อมูลใหม่หลังการอัปเดต
+    );
+
+    // ตรวจสอบว่าการอัปเดตสำเร็จหรือไม่
+    if (updatedComment) {
+      return NextResponse.json(
+        { message: "Comment updated successfully" },
+        { status: 200 }
+      );
+    } else {
+      return NextResponse.json(
+        { message: "Comment not found" },
+        { status: 404 }
+      );
+    }
   }
 }
