@@ -4,7 +4,7 @@ import { connectMongoDB } from '@/lib/db';
 import User from '@/model/User'; 
 
 export async function GET() {
-  await connectMongoDB();
+  
 
   const users = await User.find({});
   return NextResponse.json(users);

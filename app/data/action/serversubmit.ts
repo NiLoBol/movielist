@@ -3,13 +3,13 @@ import bcrypt from "bcrypt";
 import { Redis } from "@upstash/redis";
 import emailjs from "emailjs-com";
 import User from "@/model/User";
+import ForgetUser from "@/model/ForgetUser";
 export async function serversubmit(formdata: FormData) {
   console.log("test on server");
 }
 interface PasswordResetRequest {
   email: string;
   token: string;
-  expiry: number;
 }
 
 const createPasswordResetRequest = (email: string): PasswordResetRequest => {
@@ -23,62 +23,31 @@ const createPasswordResetRequest = (email: string): PasswordResetRequest => {
   };
 };
 
-const generateToken = (): string => {
-  return Math.random().toString(36).substring(2);
-};
+
 export const getIpAddress = async () => {
   const response = await fetch("https://api.ipify.org?format=json");
   const data = await response.json();
   return data.ip;
 };
-export const severtests = async (resdata: PasswordResetRequest) => {
-  const ip = await getIpAddress();
-  const upstash_data = {
-    ip: ip,
-    email: resdata.email,
-    expiry: resdata.expiry,
-    token: resdata.token,
-    ip_count: 0,
-  };
-  const redis = new Redis({
-    url: process.env.UPSTASH_REDIS_URL,
-    token: process.env.UPSTASH_REDIS_TOKEN,
-  });
-  const user: any = await redis.get("movielist-userdata-sql");
-  const find = user.findIndex(
-    (item: { email: string }) => item.email === resdata.email
-  );
-  if (find == -1) {
-    return "ไม่เจอข้อมูล";
-  } else {
-    const data: any = await redis.get("forgot_user");
-    if (data == null) {
-      const data = [];
-      data.push(upstash_data);
-      await redis.set("forgot_user", data);
-      return "Success";
-    } else {
-      const filter = data.filter(
-        (item: PasswordResetRequest) => item.expiry > Date.now()
-      );
-      console.log(filter);
-      const countip = filter.findIndex(
-        (item: PasswordResetRequest) => item.email === resdata.email
-      );
-      const filter2 = filter.filter(
-        (item: PasswordResetRequest) => item.email !== resdata.email
-      );
-      if (countip !== -1) {
-        upstash_data.ip_count = filter[countip].ip_count + 1;
-      } else {
-      }
-      console.log(filter2);
-      filter2.push(upstash_data);
-      // data.push(resdata)
-      await redis.set("forgot_user", filter2);
-      return "Success";
-    }
+export const severtests = async (email: string,token:string) => {
+  // const ip = await getIpAddress();
+  const user = await User.findOne({ email }, { email: 1, _id: 1 });
+
+  if (!user) {
+    return null;
   }
+
+  
+  
+  const newForgetUser = new ForgetUser({
+    userId: user._id, // รหัสผู้ใช้
+    email: email, // อีเมลของผู้ใช้
+    token: token, // สร้าง token แบบสุ่ม
+    expiresAt: new Date(Date.now() + 24 * 60 * 1000), // หมดอายุใน 1 นาที
+  });
+  // return null;
+  await newForgetUser.save();
+  return "Success";
 };
 
 export const set_newpassword = async (password: string, token: string) => {
@@ -156,38 +125,37 @@ function generateRandomToken() {
 
 export async function backupuser() {
   const redis = new Redis({
-    url: 'https://equal-aphid-35928.upstash.io',
-    token: 'AYxYAAIjcDE4NDA5ZTY0MjBlYjA0ODE1YjY5MDA4YzI4N2I3NjgwZXAxMA',
-  })
-  
-  for (let index = 0; index < 10; index++ ) {
+    url: "https://equal-aphid-35928.upstash.io",
+    token: "AYxYAAIjcDE4NDA5ZTY0MjBlYjA0ODE1YjY5MDA4YzI4N2I3NjgwZXAxMA",
+  });
+
+  for (let index = 0; index < 10; index++) {
     const randomNumber = Math.floor(Math.random() * 10000000000);
     const username = generateRandomToken(); // สร้าง username
     const password = generateRandomToken(); // สร้าง password
     const token = generateRandomToken(); // สร้าง token
     const user = JSON.stringify({ username, password, token, randomNumber });
-    await redis.lpush('users', user);
+    await redis.lpush("users", user);
     console.log(`User ${user} created with phone number: ${randomNumber}`);
-
   }
   // client.keys('user:*');
   // const user =await redis.smembers("user")
   // console.log(user);
-  
-  return null ;
+
+  return null;
 }
 
-
-
-export const toggleMovieForUser = async (userEmail: string, movieId: number) => {
+export const toggleMovieForUser = async (
+  userEmail: string,
+  movieId: number
+) => {
   try {
     // ค้นหาผู้ใช้ที่มี movielist รวมทั้งการตรวจสอบ id
     const user = await User.findOne({
       email: userEmail,
-      movielist: { $elemMatch: { id: movieId } }
+      movielist: { $elemMatch: { id: movieId } },
     });
-    
-    
+
     if (user) {
       // ถ้าผู้ใช้พบ ให้ลบภาพยนตร์
       await User.findOneAndUpdate(
@@ -195,53 +163,53 @@ export const toggleMovieForUser = async (userEmail: string, movieId: number) => 
         { $pull: { movielist: { id: movieId } } },
         { new: true }
       );
-      console.log(`Movie with ID ${movieId} has been removed from user's movielist.`);
+      console.log(
+        `Movie with ID ${movieId} has been removed from user's movielist.`
+      );
     } else {
       // ถ้าผู้ใช้ไม่พบ ให้เพิ่มภาพยนตร์
-      const date= Date.now()
+      const date = Date.now();
       await User.findOneAndUpdate(
         { email: userEmail },
-        { $push: { movielist: { id: movieId ,timestamp:date} } },
+        { $push: { movielist: { id: movieId, timestamp: date } } },
         { new: true }
       );
-      console.log(`Movie with ID ${movieId} has been added to user's movielist.`);
+      console.log(
+        `Movie with ID ${movieId} has been added to user's movielist.`
+      );
     }
   } catch (error) {
     // console.log(userEmail);
-    console.error('Error toggling movie for user:', error);
+    console.error("Error toggling movie for user:", error);
   }
 };
 
-export const getuser =  async (userEmail: string ,token:string) => {
+export const getuser = async (userEmail: string, token: string) => {
   try {
     const user = await User.findOne({ email: userEmail });
     if (user) {
-      const isValid = await bcrypt.compare(String(user._id),token);
-      if(isValid){
+      const isValid = await bcrypt.compare(String(user._id), token);
+      if (isValid) {
         return user;
-      }
-      else{
+      } else {
         return null;
       }
-    }
-    else{
+    } else {
       return null;
     }
   } catch (error) {
     console.log(error);
-    
   }
-}
+};
 
 export const getmovie = async (userEmail: string, movieId: number) => {
   try {
     // ค้นหาผู้ใช้ที่มี movielist รวมทั้งการตรวจสอบ id
     const user = await User.findOne({
       email: userEmail,
-      movielist: { $elemMatch: { id: movieId } }
+      movielist: { $elemMatch: { id: movieId } },
     });
-    
-    
+
     if (user) {
       // ถ้าผู้ใช้พบ ให้ลบภาพยนตร์
       await User.findOneAndUpdate(
@@ -249,19 +217,23 @@ export const getmovie = async (userEmail: string, movieId: number) => {
         { $pull: { movielist: { id: movieId } } },
         { new: true }
       );
-      console.log(`Movie with ID ${movieId} has been removed from user's movielist.`);
+      console.log(
+        `Movie with ID ${movieId} has been removed from user's movielist.`
+      );
     } else {
       // ถ้าผู้ใช้ไม่พบ ให้เพิ่มภาพยนตร์
-      const date= Date.now()
+      const date = Date.now();
       await User.findOneAndUpdate(
         { email: userEmail },
-        { $push: { movielist: { id: movieId ,timestamp:date} } },
+        { $push: { movielist: { id: movieId, timestamp: date } } },
         { new: true }
       );
-      console.log(`Movie with ID ${movieId} has been added to user's movielist.`);
+      console.log(
+        `Movie with ID ${movieId} has been added to user's movielist.`
+      );
     }
   } catch (error) {
     // console.log(userEmail);
-    console.error('Error toggling movie for user:', error);
+    console.error("Error toggling movie for user:", error);
   }
 };

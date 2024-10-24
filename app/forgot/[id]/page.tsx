@@ -2,6 +2,9 @@ import { gettoken } from "@/app/data/gettoken";
 import { Redis } from "@upstash/redis";
 import { redirect } from "next/navigation";
 import Client_forget_page from "./Client_forget_page";
+import ForgetUser from "@/model/ForgetUser";
+import User from "@/model/User";
+import { forget_getuser } from "@/app/data/action/Forget";
 
 async function Page({
   params,
@@ -11,31 +14,19 @@ async function Page({
   searchParams: { [key: string]: string | string[] | undefined };
 }) {
   const token = params.id;
-
-  const redis = new Redis({
-    url: process.env.UPSTASH_REDIS_URL,
-    token: process.env.UPSTASH_REDIS_TOKEN,
-  });
-  const user: any = await redis.get("forgot_user");
-  const find = user.findIndex(
-    (item: { token: string }) => item.token === token
-  );
-  console.log(find);
-  if (find === -1) {
-    redirect("/");
-  }
-  const time = Number(user[find].expiry) - Date.now();
-  if (time < 0) {
-    redirect("/");
+  const user =await forget_getuser(token);
+  if(user==null){
+    redirect("/")
   }
 
   return (
     <div className="mt-40">
-      <Client_forget_page
+      {/* error */}
+      {/* <Client_forget_page
         id={params.id}
-        data={user[find]}
-        time={time}
-      ></Client_forget_page>
+        data={user}
+        time={60}
+      ></Client_forget_page> */}
     </div>
   );
 }

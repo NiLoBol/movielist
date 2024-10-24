@@ -3,36 +3,24 @@ import React, { useState } from "react";
 import emailjs from "emailjs-com";
 import { severtests } from "../data/action/serversubmit";
 
+import { useSession } from "next-auth/react";
+
 interface PasswordResetRequest {
   email: string;
   token: string;
-  expiry: number;
 }
-
-const createPasswordResetRequest = (email: string): PasswordResetRequest => {
-  const token = generateToken();
-  const expiry = Date.now() + 10 * 60 * 1000; // เวลาหมดอายุ 10 นาทีใน milliseconds
-  // const expiry = Date.now()
-  return {
-    email,
-    token,
-    expiry,
-  };
-};
-
 const generateToken = (): string => {
   return Math.random().toString(36).substring(2);
 };
 
 function Page() {
   const [email, setEmail] = useState("");
-
   const handleForgot = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const newForgetData = createPasswordResetRequest(email);
+    const token =generateToken();
   
     try {
-      const res: string = await severtests(newForgetData);
+      const res: string|null = await severtests(email,token);
       console.log(res);
   
       if (res === "Success") {
@@ -46,7 +34,7 @@ function Page() {
             from_email: "sathaporn.e@wris.com",
             to_email: email, //put your email here.
             message: "click to go link",
-            link: `http://localhost:3000/forgot/${newForgetData.token}`,
+            link: `http://localhost:3000/forgot/${token}`,
           },
           
           process.env.NEXT_PUBLIC_EMAILJS_USER_ID!
