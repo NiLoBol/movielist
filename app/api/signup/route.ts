@@ -52,12 +52,13 @@ export async function POST(request: NextRequest) {
 
     const newUser = new User({
         email,
-        password: hashedPassword,
+        password,
         fullname,
         gender,
         phonenumber,
         username,
         timeStamp: Date.now(),
+        movielist:[]
     });
 
     try {

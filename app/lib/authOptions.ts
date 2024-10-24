@@ -34,48 +34,52 @@ export const authOptions: NextAuthOptions = {
         }
         // ตรวจสอบรหัสผ่าน
         const isPasswordMatch = await bcrypt.compare(password, users.password);
-        const timeStampString = String(users.timeStamp);
-        const token = bcrypt.hashSync(timeStampString, 10);
+        // const timeStampString = String(users.timeStamp);
+        const token = bcrypt.hashSync(String(users._id), 10);
         console.log(isPasswordMatch);
 
         if (isPasswordMatch) {
           return {
-            id: users.timeStamp,
+            id: JSON.stringify(users._id),
             email: users.email,
-            name: token,
+            name: users.username,
+            movielist:users.movielist,
             token: token,
           };
         } else {
           return null;
         }
-        return null; // คืนค่า null หากรหัสผ่านไม่ตรงกัน
       },
     }),
   ],
-  // callbacks: {
-  //     async session({ session, token }) {
-  //       // Customize the session object here based on the token values
-  //       session.user = {
-  //          // Assume id is always string
-  //         email: token.email || null, // Use token.email or set it to null if undefined
-  //         token: token.token as string || undefined, // Use token.token or set it to undefined if not present
-  //         name:token.name || undefined
-  //       };
+  callbacks: {
+      async session({ session, token }) {
+        // Customize the session object here based on the token values
+        session.user = {
+           // Assume id is always string
+          
+          email: token.email || null, // Use token.email or set it to null if undefined
+          token: token.token as string || undefined, // Use token.token or set it to undefined if not present
+          name:token.name || undefined,
+          
+        };
 
-  //       return session;
-  //     },
-  //     async jwt({ token, user }) {
-  //       // Customize the JWT to store extra information if needed
-  //       if (user) {
-  //          // Save user ID to the token
-  //         token.email = user.email; // Save email to the token
-  //         token.token = user.token; // Save the custom token to the token
-  //         token.name = user.name;
-  //       }
+        return session;
+      },
+      async jwt({ token, user }) {
+        // Customize the JWT to store extra information if needed
+        if (user) {
+           // Save user ID to the token
+          token.email = user.email; // Save email to the token
+          token.token = user.token; // Save the custom token to the token
+          token.name = user.name;
+          
+          
+        }
 
-  //       return token;
-  //     },
-  //   },
+        return token;
+      },
+    },
 
   // Other options like callbacks can go here if needed
 };

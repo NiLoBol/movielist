@@ -11,20 +11,21 @@ interface UserComment {
 }
 
 function GetcommentUser({ comment }: { comment: any }) {
-  console.log(comment.userdata);
+  const comments =comment.commentuser;
+  console.log(comment.commentuser);
   const { data: session } = useSession();
-  const [userdata, setuserdata] = useState<UserComment[]>(comment.userdata);
+  const [userdata, setuserdata] = useState<UserComment[]>(comments);
   const [editState, setEditState] = useState<boolean[]>(
-    Array(comment.userdata.length).fill(false)
+    Array(comments.length).fill(false)
   );
   const [messageState, setmessageState] = useState<string[]>(
-    Array(comment.userdata.length).fill("")
+    Array(comments.length).fill("")
   );
 
   const email = session?.user?.email;
-  const token = session?.user?.name;
-  const deletecomment = async (id: number) => {
-    const dataToStore = { email, id: id, token };
+  const token = session?.user?.token;
+  const deletecomment = async (_id: any) => {
+    const dataToStore = { email, _id, token };
     const response = await fetch("/api/submit/deletecomment", {
       method: "POST",
       body: JSON.stringify(dataToStore),
@@ -33,9 +34,11 @@ function GetcommentUser({ comment }: { comment: any }) {
       console.error("api fail");
     } else {
       alert("success");
-      const data = await response.json();
-      setuserdata(data.filteruser);
-      console.log(data);
+      const newdata = userdata.filter((item:any)=>item._id!==_id);
+      setuserdata(newdata);
+      // const data = await response.json();
+      // setuserdata(data.filteruser);
+      // console.log(data);
       // window.location.reload();
     }
   };
@@ -138,7 +141,7 @@ function GetcommentUser({ comment }: { comment: any }) {
                       className="basis-4/5 cursor-pointer"
                       onClick={() => setEditStateIndex(index)}
                     >
-                      message : {item.message} (Click message to edit)
+                      message : {item.message} <div>(Click message to edit)</div>
                     </div>
                   ) : (
                     <>
@@ -173,7 +176,7 @@ function GetcommentUser({ comment }: { comment: any }) {
                 <div className="basis-1/5">
                   <div
                     className="rounded-full card h-14 cursor-pointer w-14 "
-                    onClick={() => deletecomment(item.id)}
+                    onClick={() => deletecomment(item._id)}
                   >
                     <Delete />
                   </div>

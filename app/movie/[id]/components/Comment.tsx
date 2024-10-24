@@ -11,7 +11,7 @@ function Comment({ id }: { id: number }) {
   const [message, setmessage] = useState("");
   async function Submit() {
     const email = session?.user?.email;
-    const token = session?.user?.name;
+    const token = session?.user?.token;
     const dataToStore = { email, token, message, id };
     const response = await fetch("/api/submit/setcomment", {
       method: "POST",

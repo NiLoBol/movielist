@@ -21,10 +21,13 @@ const ReportPage = () => {
     count: number;
   } | null>(null);
   const { data: session } = useSession();
+  
+  const email = session?.user?.email;
+    const token = session?.user?.token;
   const [stop, setstop] = useState(false);
+  //api1
   const remove = async (movieid: number) => {
-    const email = session?.user?.email;
-    const token = session?.user?.name;
+    
 
     if (email) {
       const findIndex = movieslove.findIndex((item) => item.id === movieid);
@@ -51,11 +54,9 @@ const ReportPage = () => {
       console.error("Email not defined");
     }
   };
-
+//api2 3
   useEffect(() => {
     const fetchMovies = async () => {
-      const email = session?.user?.email;
-      const token = session?.user?.name;
 
       if (!email || !token) return;
 
@@ -103,6 +104,7 @@ const ReportPage = () => {
       setstate("nouser");
       console.log("ไม่มีผู้ใช้งาน");
       alert("Please log in.");
+      window.location.href ='/'
     } else {
       
       console.log("อาจมีผู้ใช้งาน");

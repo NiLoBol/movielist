@@ -6,14 +6,14 @@ import MovieLoveCard from "./MovieLoveCard";
 function Movielist(props: { id: string; data: any }) {
   const data = props.data;
   const { data: session } = useSession();
-  const [movieslove, setmovieslove] = useState([]);
+  const [movieslove, setmovieslove] = useState<[]|null>();
   const [test, settest] = useState([]);
 
   //get api reload
   useEffect(() => {
     const rest = async () => {
       const email = session?.user?.email;
-      const token = session?.user?.name;
+      const token = session?.user?.token;
       const dataToStore = { email, token };
       const res = await fetch("/api/lovelist/getlist", {
         method: "POST",
@@ -23,9 +23,11 @@ function Movielist(props: { id: string; data: any }) {
         throw new Error("Failed to fetch data");
       }
       const data = await res.json();
-      setmovieslove(data.userdata);
+      console.log(data);
+      
+      setmovieslove(data.movielist);
     };
-    if (session) {
+    if (session && movieslove == null) {
       rest();
     }
   }, [session]);
@@ -33,9 +35,13 @@ function Movielist(props: { id: string; data: any }) {
   useEffect(() => {
     if (!movieslove) {
     } else {
+      
       const booldata = data.map((movie: any) => {
-        return movieslove.some((element: any) => element.id === movie.id); // ใช้ some แทน filter
+        return movieslove.some((element: any) => element === movie.id); // ใช้ some แทน filter
       });
+      console.log(data);
+      console.log(movieslove);
+      
       const updatedData = data.map((movie: any, index: number) => ({
         ...movie, // คัดลอกคุณสมบัติของ movie
         bool: booldata[index], // เพิ่มคุณสมบัติใหม่ bool

@@ -2,6 +2,7 @@
 import bcrypt from "bcrypt";
 import { Redis } from "@upstash/redis";
 import emailjs from "emailjs-com";
+import User from "@/model/User";
 export async function serversubmit(formdata: FormData) {
   console.log("test on server");
 }
@@ -178,3 +179,89 @@ export async function backupuser() {
 
 
 
+export const toggleMovieForUser = async (userEmail: string, movieId: number) => {
+  try {
+    // ค้นหาผู้ใช้ที่มี movielist รวมทั้งการตรวจสอบ id
+    const user = await User.findOne({
+      email: userEmail,
+      movielist: { $elemMatch: { id: movieId } }
+    });
+    
+    
+    if (user) {
+      // ถ้าผู้ใช้พบ ให้ลบภาพยนตร์
+      await User.findOneAndUpdate(
+        { email: userEmail },
+        { $pull: { movielist: { id: movieId } } },
+        { new: true }
+      );
+      console.log(`Movie with ID ${movieId} has been removed from user's movielist.`);
+    } else {
+      // ถ้าผู้ใช้ไม่พบ ให้เพิ่มภาพยนตร์
+      const date= Date.now()
+      await User.findOneAndUpdate(
+        { email: userEmail },
+        { $push: { movielist: { id: movieId ,timestamp:date} } },
+        { new: true }
+      );
+      console.log(`Movie with ID ${movieId} has been added to user's movielist.`);
+    }
+  } catch (error) {
+    // console.log(userEmail);
+    console.error('Error toggling movie for user:', error);
+  }
+};
+
+export const getuser =  async (userEmail: string ,token:string) => {
+  try {
+    const user = await User.findOne({ email: userEmail });
+    if (user) {
+      const isValid = await bcrypt.compare(String(user._id),token);
+      if(isValid){
+        return user;
+      }
+      else{
+        return null;
+      }
+    }
+    else{
+      return null;
+    }
+  } catch (error) {
+    console.log(error);
+    
+  }
+}
+
+export const getmovie = async (userEmail: string, movieId: number) => {
+  try {
+    // ค้นหาผู้ใช้ที่มี movielist รวมทั้งการตรวจสอบ id
+    const user = await User.findOne({
+      email: userEmail,
+      movielist: { $elemMatch: { id: movieId } }
+    });
+    
+    
+    if (user) {
+      // ถ้าผู้ใช้พบ ให้ลบภาพยนตร์
+      await User.findOneAndUpdate(
+        { email: userEmail },
+        { $pull: { movielist: { id: movieId } } },
+        { new: true }
+      );
+      console.log(`Movie with ID ${movieId} has been removed from user's movielist.`);
+    } else {
+      // ถ้าผู้ใช้ไม่พบ ให้เพิ่มภาพยนตร์
+      const date= Date.now()
+      await User.findOneAndUpdate(
+        { email: userEmail },
+        { $push: { movielist: { id: movieId ,timestamp:date} } },
+        { new: true }
+      );
+      console.log(`Movie with ID ${movieId} has been added to user's movielist.`);
+    }
+  } catch (error) {
+    // console.log(userEmail);
+    console.error('Error toggling movie for user:', error);
+  }
+};

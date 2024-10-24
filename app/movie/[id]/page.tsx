@@ -16,7 +16,7 @@ async function page({
    const baseurl = "https://image.tmdb.org/t/p/w500";
     const res = await fetch(url);
     const movie = await res.json();
-    console.log(movie);
+    // console.log(movie);
     
   return (
     
